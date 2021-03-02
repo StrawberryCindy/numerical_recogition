@@ -46,9 +46,9 @@ reg		               position2 = 0;   // left h1
 
 wire[11:0]					point_num;
 //assign				vout_num = vout_num_r;
-assign				point_num[11:8] = (point_num1 + 1'b1) >> 1;
-assign				point_num[7:4] = (point_num2 + 1'b1) >> 1;
-assign				point_num[3:0] = (point_num3 + 1'b1) >> 1;
+assign				point_num[11:8] = (point_num1 + 4'b1) >> 1;
+assign				point_num[7:4] = (point_num2 + 4'b1) >> 1;
+assign				point_num[3:0] = (point_num3 + 4'b1) >> 1;
 
 parameter	idle = 5'd0;
 parameter	ready = 5'd1;
