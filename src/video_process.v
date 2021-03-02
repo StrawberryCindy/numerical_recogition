@@ -46,9 +46,9 @@ reg		               position2 = 0;   // left h1
 
 wire[11:0]					point_num;
 //assign				vout_num = vout_num_r;
-assign				point_num[11:8] = (point_num1 + 4'b1) >> 1;
-assign				point_num[7:4] = (point_num2 + 4'b1) >> 1;
-assign				point_num[3:0] = (point_num3 + 4'b1) >> 1;
+assign				point_num[11:8] = point_num1;
+assign				point_num[7:4] = point_num2;
+assign				point_num[3:0] = point_num3;
 
 parameter	idle = 5'd0;
 parameter	ready = 5'd1;
@@ -175,9 +175,9 @@ begin
 	end
 	else if(state == check)
 	begin
-		point_num1 <= point_num1_d0;
-		point_num2 <= point_num2_d0;
-		point_num3 <= point_num3_d0;
+		point_num1 <= point_num1_d0 + 4'b1 >> 1;
+		point_num2 <= point_num2_d0 + 4'b1 >> 1;
+		point_num3 <= point_num3_d0 + 4'b1 >> 1;
 	end
 	else
 	begin
