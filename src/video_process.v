@@ -46,7 +46,9 @@ reg		               position2 = 0;   // left h1
 
 wire[11:0]					point_num;
 //assign				vout_num = vout_num_r;
-assign				point_num = {point_num1,point_num2,point_num3};
+assign				point_num[11:8] = (point_num1 + 1'b1) >> 1;
+assign				point_num[7:4] = (point_num2 + 1'b1) >> 1;
+assign				point_num[3:0] = (point_num3 + 1'b1) >> 1;
 
 parameter	idle = 5'd0;
 parameter	ready = 5'd1;
@@ -194,25 +196,24 @@ begin
 	else if (state == check)
 	begin		
 		case(point_num)			
-			12'b0010_0010_0000: 		vout_num <= 1;
-			12'b0100_0100_0100: 		vout_num <= 0;
-			12'b0010_0010_1000, 12'b0100_0010_1000: 
+			12'b0010_0010_0010: 		vout_num <= 0;
+			12'b0001_0001_0000: 		vout_num <= 1;
+			12'b0001_0001_0100, 12'b0010_0001_0100: 
 											vout_num <= 3;
-			12'b0100_0010_0000, 12'b0100_0010_0010: 	
+			12'b0010_0001_0000, 12'b0010_0001_0001: 	
 											vout_num <= 4;
-			12'b0100_0010_0100: 		vout_num <= 5;
-			12'b0010_0100_0110: 		vout_num <= 6;
-			12'b0010_0010_0100: 		vout_num <= 7;
-			12'b0100_0100_0110, 12'b0100_0100_1000: 	
+			12'b0001_0010_0011: 		vout_num <= 6;
+			12'b0001_0001_0010: 		vout_num <= 7;
+			12'b0010_0010_0011, 12'b0010_0010_0100: 	
 											vout_num <= 8;
-			12'b0110_0010_0100:		vout_num <= 9;
-			12'b0010_0010_0010: 		
+			12'b0011_0001_0010:		vout_num <= 9;
+			12'b0001_0001_0001: 		
 			begin
 				if (flag1) 	vout_num <= 7;
 				else		vout_num <= 1;
 			end
 
-			12'b0010_0010_0110:
+			12'b0001_0001_0011:
 			begin 
 				if (position2) 
 					vout_num <= 5;
@@ -222,7 +223,7 @@ begin
 					vout_num <= 2;
 			end
 
-			12'b0100_0010_0110:
+			12'b0010_0001_0011:
 			begin
 				if (flag2 && position1)	
 					vout_num <= 3;
@@ -232,7 +233,7 @@ begin
 					vout_num <= 9;
 			end
 
-			12'b0100_0010_0100:
+			12'b0010_0001_0010:
 			begin
 				if (flag3)	vout_num <= 4;
 				else		vout_num <= 9;
