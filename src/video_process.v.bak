@@ -1,0 +1,135 @@
+module video_process
+#(
+	parameter DATA_WIDTH = 16,                      // Video data one clock data width
+	parameter we = 180,								// vertical end
+	parameter he = 240,								// horizontal end
+
+    parameter h1 = 80,                              // horizontal standards
+    parameter h2 = 160,
+	parameter w1 = 90                               // vertical standard
+)
+(
+	input                       line_clk,        	// Points clk
+	input						video_clk,			// Video clock
+	input                       rst,
+	input[we - 1:0]       		line1,	            // 0-black  1-white
+	input[we - 1:0]      		line2,
+
+	input[DATA_WIDTH - 1:0]		h,					// row
+	output[3:0]                 vout_num            // the number in video
+);
+
+
+reg                    flag1 = 0;       // left above
+reg		               flag2 = 0;       // right below
+reg 				   flag3 = 0;		// right center 
+reg					   position1 = 0;	// right h2
+reg		               position2 = 0;   // left h1 
+
+reg					   frame_flag;		// A frame of data is ready
+
+
+reg[7:0]               point_num = 0;
+reg[3:0]               vout_num_r;
+
+reg[7:0]	    	   i;
+
+assign vout_num = vout_num_r;
+
+
+
+always@(posedge video_clk or posedge rst)
+begin
+
+	if(rst == 1'b1)
+        point_num <= 0;
+	else if (line_clk)
+		i <= 1;
+	else if (h == he)
+		frame_flag <= 1;
+	else
+	begin
+		i <= i + 1;
+		if (h == h1 && line1[i] - line1[i-1] == 1 )
+		begin
+            point_num <= point_num + 100; 
+			if (i < 90)
+				position2 <= 1;
+		end
+
+		else if (h == h2 && line1[i] - line1[i-1] == 1)
+		begin
+			point_num <= point_num + 10;
+			if (i > 90)
+				position1 <= 1;
+		end
+
+		else if (i == w1 && line1[i-1] - line2[i-1] == 1)
+			point_num <= point_num + 1;
+
+		else if (h < h1 && i < 60 && line1[i-1] == 1)
+			flag1 <= 1;
+		
+		else if (h > 157 && i > 120 && line1[i-1] == 1)
+			flag2 <= 1;
+
+		else if ( h > 60 && h < 120 && i > 120 && line1[i-1] == 1)
+			flag3 <= 1;
+
+		else if (i-1 == we)
+			i <= 1;
+	end
+end
+
+always@(frame_flag)
+begin
+	if (rst == 1'b1)
+		vout_num_r <= 1'hf;
+	else
+	begin
+		frame_flag <= 0;
+		case(point_num)	
+			222: 		vout_num_r <= 0;
+			110: 		vout_num_r <= 1;
+			114, 214: 	vout_num_r <= 3;
+			210, 211: 	vout_num_r <= 4;
+			123: 		vout_num_r <= 6;
+			112: 		vout_num_r <= 7;
+			223, 224: 	vout_num_r <= 8;
+			312:		vout_num_r <= 9;
+			111: 		
+			begin
+				if (flag1) 	vout_num_r <= 7;
+				else		vout_num_r <= 1;
+			end
+
+			113:
+			begin 
+				if (position2) 
+					vout_num_r <= 5;
+				else if(position1)
+					vout_num_r <= 3;
+				else
+					vout_num_r <= 2;
+			end
+
+			213:
+			begin
+				if (flag2 && position1)	
+					vout_num_r <= 3;
+				else if (flag2)
+					vout_num_r <= 2;
+				else
+					vout_num_r <= 9;
+			end
+
+			212:
+			begin
+				if (flag3)	vout_num_r <= 4;
+				else		vout_num_r <= 9;
+			end
+		endcase
+	end
+end
+
+endmodule 
